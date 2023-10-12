@@ -1,0 +1,12 @@
+{
+    "students": [
+        {
+            "number": "1778",
+            "name": "Marcelo Filipe",
+            "city": "Braga",
+            "birthday": "17-09-1991"
+        }
+    ],
+    "schools": [],
+    "courses": []
+}
