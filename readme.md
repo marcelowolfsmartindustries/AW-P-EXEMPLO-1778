@@ -309,6 +309,299 @@
 ### Ficha de exercícios
 ### Criar toda a estrutura para:
 - Escolas:
+    - [x] Identificador, nome, sigla, morada, website.
+- Cursos:
+    - [x] Identificador, nome, sigla e escola a que pertence.
+- Alunos
+    - [x] Identificador, nº de aluno, nome, morada, data de nascimento e curso a que pertence.
+
+**Não esquecer de validar:**
+
+- Antes de retornar um registo verificar se:
+    - [x] o registo efetivamente existe;
+
+- Antes de gravar verificar se:
+    - [x] o registo efetivamente existe;
+    - [x] todas os campos estão devidamente preenchidos;
+    - [x] (no caso de create) se já existe um registo com o mesmo identitificador (número);
+
+- Antes de eliminar verificar se:
+    - [x] o registo efetivamente existe;
+  
+## Aula 4 - Base de dados
+
+### PostgreSQL
+- Official website https://www.postgresql.org/
+
+- Docs https://www.postgresql.org/docs/
+
+- Download https://www.postgresql.org/download/windows/
+    - PgAdmin 4
+    - PWD superuser exemplo <code>postgres</code>
+
+### PRISMA
+
+- Official website https://www.prisma.io/
+
+- Docs https://www.prisma.io/docs
+
+- Client reference  https://www.prisma.io/docs/reference/api-reference/prisma-client-reference
+
+- CRUD https://www.prisma.io/docs/concepts/components/prisma-client/crud
+
+
+### Setup de instalação
+- Instalar PostgreSQL;
+
+- Instalar Prisma Extension no VSCode;
+    - https://marketplace.visualstudio.com/items?itemName=Prisma.prisma
+
+
+#### Terminal
+- Instalar PRISMA
+    ```bash
+    npm install -g prisma
+    ```
+
+- Instalar  PRISMA client
+    ```bash
+    npm install @prisma/client 
+    ```
+
+- Versionar a API
+    - v1 -> dados locais
+    - v2 -> base de dados 
+    - Estrutura de pastas e ficheiros:
+
+    ```
+    📦AW-P-EXEMPLO-1778
+    ┣ 📂controllers
+    ┃ ┣ 📂v1
+    ┃ ┃ ┗ 📜student.js
+    ┃ ┗ 📂v2
+    ┃ ┃ ┗ 📜student.js
+    ┣ 📂data
+    ┃ ┣ 📂local
+    ┃ ┃ ┗ 📜data.json
+    ┃ ┗ 📂prisma
+    ┣ 📂routes
+    ┃ ┣ 📂v1
+    ┃ ┃ ┣ 📜index.js
+    ┃ ┃ ┗ 📜students.js
+    ┃ ┗ 📂v2
+    ┃ ┃ ┣ 📜index.js
+    ┃ ┃ ┗ 📜students.js
+    ┣ 📂slides
+    ┃ ┗ 📜2 - API - Intro.pdf
+    ┣ 📜.env
+    ┣ 📜.example.env
+    ┣ 📜.gitignore
+    ┣ 📜AW-P-EXEMPLO-1778.postman_collection.json
+    ┣ 📜package-lock.json
+    ┣ 📜package.json
+    ┣ 📜readme.md
+    ┗ 📜server.js
+    ```
+
+- Alterar no server.js o versionamento na API
+    ```javascript
+    require('dotenv').config();
+
+    const bodyParser = require('body-parser');
+    const cors = require('cors');
+    const express = require('express');
+
+    const router_v1 = require('./routes/v1/index');
+    const router_v2 = require('./routes/v2/index');
+
+    const app = express();
+    app.use(bodyParser.json());
+    app.use(cors());
+
+    app.use('/api/v1/', router_v1);
+    app.use('/api/v2/', router_v2);
+
+    const port = process.env.SERVER_PORT || 8080;
+
+    app.listen(port, () => {
+        console.log('Express server listening on port', port)
+    });
+    ```
+
+- Adicionar configuração do prisma no package.json
+    ```json
+    "prisma": {
+        "schema": "data/prisma/schema.prisma"
+    },
+    ```
+
+- No terminal executar o seguinte comando para ser adicionado URL da BD no ficheiro .env
+    ```bash
+    prisma init
+    ```
+
+     - .env
+        ```
+        SERVER_HOST=localhost
+        SERVER_PORT=4242
+        DATABASE_URL="postgres://postgres:superuser@localhost:5432/AW-P-EXEMPLO-1778"
+        ```
+
+- No terminar executar:
+    ```bash
+    prisma generate
+    ```
+
+- Alterar o schema.prisma
+    ```
+    generator client {
+        provider = "prisma-client-js"
+    }
+
+    datasource db {
+        provider = "postgresql"
+        url      = env("DATABASE_URL")
+    }
+
+    model Students {
+        id    Int     @id @default(autoincrement())
+        number String  @unique
+        name  String
+        city String
+        birthday String
+    }
+    ```
+
+- No terminal executar (para criar ou atualizar a configuração da BD)
+    ```
+    prisma db push
+    ```
+
+- Verificar no PgAdmin se a BD foi criada com sucesso
+
+- Criar as novas rotas routes -> v2 -> students
+
+    ```javascript
+    const studentRouter = require('express').Router();
+    const controller = require('../../controllers/v2/student');
+
+    //students CRUD
+    studentRouter.get('/', controller.getAll); //read all
+    studentRouter.get('/:number', controller.getById); //read one by his id (student number)
+    studentRouter.post('/create', controller.create); //create new student
+    studentRouter.put('/update', controller.update); //update student
+    studentRouter.delete('/delete/:number', controller.delete); //delete student
+
+    module.exports = studentRouter;
+    ```
+
+- Criar o CRUD controllers -> v2 -> student 
+    ```javascript
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient()
+
+    //return all students
+    exports.getAll = async (req, res) => {
+        try {
+            //read all from database
+            const response = await prisma.students.findMany();
+            res.status(200).json(response)
+        } catch (error) {
+            res.status(500).json({ msg: error.message })
+        }
+    }
+
+    //return student by his id (student number)
+    exports.getById = async (req, res) => {
+        //get student id requested
+        const id = req.params.number;
+        try {
+            //finds student by his id (number)
+            const response = await prisma.students.findUnique({
+                where: {
+                    number: id,
+                },
+            })
+            //return student
+            res.status(200).json(response)
+        } catch (error) {
+            res.status(404).json({ msg: error.message })
+        }
+    }
+
+    //creates student
+    exports.create = async (req, res) => {
+        //get requested student properties
+        const { number, name, city, birthday } = req.body;
+        try {
+            //creates new student
+            const student = await prisma.students.create({
+                data: {
+                    number: number,
+                    name: name,
+                    city: city,
+                    birthday: birthday
+
+                },
+            })
+            //return student created
+            res.status(201).json(student)
+        } catch (error) {
+            res.status(400).json({ msg: error.message })
+        }
+    }
+
+    //updates student
+    exports.update = async (req, res) => {
+        const { number, name, city, birthday } = req.body;
+
+        try {
+            //find student to update their data
+            const student = await prisma.students.update({
+                where: {
+                    number: number,
+                },
+                data: {
+                    name: name,
+                    city: city,
+                    birthday: birthday
+                },
+            })
+            //return student updated
+            res.status(200).json(student)
+        } catch (error) {
+            res.status(400).json({ msg: error.message })
+        }
+    }
+
+    //delete student by his id (student number)
+    exports.delete = async (req, res) => {
+        //get student number requested
+        const number = req.params.number;
+        try {
+            //delete student
+            await prisma.students.delete({
+                where: {
+                    number: number,
+                },
+            })
+            //just return ok
+            res.status(200).send("ok");
+        } catch (error) {
+            res.status(400).json({ msg: error.message })
+        }
+    }
+    ```
+
+- Executar <code>npm start</code>;
+
+- Testar no Postman;
+
+- Push para o GIT;
+
+### Ficha de exercícios
+### Criar toda a estrutura para:
+- Escolas:
     - [ ] Identificador, nome, sigla, morada, website.
 - Cursos:
     - [ ] Identificador, nome, sigla e escola a que pertence.
@@ -327,8 +620,6 @@
 
 - Antes de eliminar verificar se:
     - [ ] o registo efetivamente existe;
-  
-## Aula 4 - Base de dados
 
 ## Aula 5 - Autenticação e autorização
 
