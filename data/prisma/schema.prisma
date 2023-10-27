@@ -14,3 +14,11 @@ model Students {
   city String
   birthday String
 }
+
+model Users{
+  id String  @id @default(uuid())
+  name String  @db.VarChar(255)
+  email String @unique
+  password String
+  isAdmin   Boolean @default(false)
+}

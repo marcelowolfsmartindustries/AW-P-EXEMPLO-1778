@@ -234,6 +234,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJkMTNkMzMwLTkwMTktNGU0Yi04ZDIwLWFkOTk2NzcwMjIzMSIsIm5hbWUiOiJNYXJjZWxvIiwiaWF0IjoxNjk4NDEyMzQ3LCJleHAiOjE2OTkwMTcxNDd9.J-EKGn3x2QmbN7izBrMTQ8RcR4UCmE3HZy8e1r0Stao",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -266,6 +276,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJkMTNkMzMwLTkwMTktNGU0Yi04ZDIwLWFkOTk2NzcwMjIzMSIsIm5hbWUiOiJNYXJjZWxvIiwiaWF0IjoxNjk4NDEyMzQ3LCJleHAiOjE2OTkwMTcxNDd9.J-EKGn3x2QmbN7izBrMTQ8RcR4UCmE3HZy8e1r0Stao",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -301,6 +321,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJkMTNkMzMwLTkwMTktNGU0Yi04ZDIwLWFkOTk2NzcwMjIzMSIsIm5hbWUiOiJNYXJjZWxvIiwiaWF0IjoxNjk4NDEyMzQ3LCJleHAiOjE2OTkwMTcxNDd9.J-EKGn3x2QmbN7izBrMTQ8RcR4UCmE3HZy8e1r0Stao",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
@@ -345,6 +375,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJkMTNkMzMwLTkwMTktNGU0Yi04ZDIwLWFkOTk2NzcwMjIzMSIsIm5hbWUiOiJNYXJjZWxvIiwiaWF0IjoxNjk4NDEyMzQ3LCJleHAiOjE2OTkwMTcxNDd9.J-EKGn3x2QmbN7izBrMTQ8RcR4UCmE3HZy8e1r0Stao",
+											"type": "string"
+										}
+									]
+								},
 								"method": "PUT",
 								"header": [],
 								"body": {
@@ -389,6 +429,16 @@
 								}
 							],
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJkMTNkMzMwLTkwMTktNGU0Yi04ZDIwLWFkOTk2NzcwMjIzMSIsIm5hbWUiOiJNYXJjZWxvIiwiaWF0IjoxNjk4NDEyMzQ3LCJleHAiOjE2OTkwMTcxNDd9.J-EKGn3x2QmbN7izBrMTQ8RcR4UCmE3HZy8e1r0Stao",
+											"type": "string"
+										}
+									]
+								},
 								"method": "DELETE",
 								"header": [],
 								"body": {
@@ -414,6 +464,69 @@
 									]
 								},
 								"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "auth",
+					"item": [
+						{
+							"name": "POST: api/v2/auth/signup",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Marcelo\",\r\n    \"email\": \"marcelo@ipvc.pt\",\r\n    \"password\": \"12345Qw!\",\r\n    \"isAdmin\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v2/auth/signup",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v2",
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "POST: api/v2/auth/signin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"marcelo@ipvc.pt\",\r\n    \"password\": \"12345Qw!\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v2/auth/signin",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v2",
+										"auth",
+										"signin"
+									]
+								}
 							},
 							"response": []
 						}

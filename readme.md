@@ -26,11 +26,14 @@
 
 ### MY FIRST API
 - Abrir terminal e executar:
-    - <code>npm init</code>;
+    ```bash
+    npm init
+    ```
 - Preencher os dados pedidos;
 - Instalar dependências:
-    - <code>npm install express nodemon cors dotenv morgan --save 
-</code>
+    ```bash
+    npm install express nodemon cors dotenv morgan --save 
+    ```
 - Criar ficheiro .env (environment) na raiz do projeto:
      ```
     SERVER_HOST=localhost
@@ -40,7 +43,9 @@
 - Criar um ficheiro na raiz do projeto server.js;
 - Alterar no package.json "main": "server.js";
 - Adicionar script no package.json:
-    - "start": "nodemon server.js“
+    ```json
+    "start": "nodemon server.js“
+    ```
 
 - package.json deverá ficar assim:
     ```json
@@ -622,6 +627,254 @@
     - [ ] o registo efetivamente existe;
 
 ## Aula 5 - Autenticação e autorização
+
+### Autenticação
+
+- Authentication is the process of verifying a user’s identification through the acquisition of credentials and using those credentials to confirm the user’s identity. 
+
+### Autorização
+
+- A autorização é o processo que permite aos utilizadores autenticados acederem a recursos, determinando se têm permissões de acesso ao sistema. Ao conceder ou negar licenças específicas a um utilizador autenticado, a autorização permite-lhe controlar os privilégios de acesso.
+
+### JWT
+
+- Os JSON Web Tokens (JWT) são um padrão aberto da indústria RFC 7519 para representar reivindicações entre duas partes. 
+
+- Os JWTs são um objeto singular de três cadeias de caracteres concatenadas, separadas por um . 
+
+    Um exemplo de JWT teria o seguinte aspeto: 
+    aaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.ccccccccccccccccccccccc
+
+- A primeira cadeia (aaa...a) é o cabeçalho que contém o algoritmo utilizado para o encriptar e o tipo de token que, obviamente, é o JWT. 
+A segunda cadeia (bbb...b) é o payload que contém toda a carne. Pode conter o que quiser, mas geralmente inclui o ID do utilizador e o nome de utilizador, etc. 
+A terceira cadeia (ccc...c) é a assinatura que contém um hash (encriptação) do cabeçalho e da carga útil. O hash é feito com uma chave secreta que é fornecida pelo programador.
+
+### Setup
+
+- Instalar  bcrypt (https://www.npmjs.com/package/bcrypt)
+    ```bash
+    npm install bcrypt
+    ```
+
+- Instalar  jsonwebtoken (https://www.npmjs.com/package/jsonwebtoken)
+    ```bash
+    npm install jsonwebtoken
+    ```
+- Criar estrutura de pastas e ficheiros:
+
+    ```
+    📦AW-P-EXEMPLO-1778
+    ┣ 📂controllers
+    ┃ ┣ 📂v1
+    ┃ ┃ ┗ 📜student.js
+    ┃ ┗ 📂v2
+    ┃ ┃ ┣ 📜auth.js (+)
+    ┃ ┃ ┗ 📜student.js
+    ┣ 📂data
+    ┃ ┣ 📂local
+    ┃ ┃ ┗ 📜data.json
+    ┃ ┗ 📂prisma
+    ┃ ┃ ┗ 📜schema.prisma
+    ┣ 📂middlewares (+)
+    ┃ ┗ 📜auth.js (+)
+    ┣ 📂routes
+    ┃ ┣ 📂v1
+    ┃ ┃ ┣ 📜index.js
+    ┃ ┃ ┗ 📜students.js
+    ┃ ┗ 📂v2
+    ┃ ┃ ┣ 📜auth.js (+)
+    ┃ ┃ ┣ 📜index.js
+    ┃ ┃ ┗ 📜students.js
+    ┣ 📂slides
+    ┃ ┗ 📜2 - API - Intro.pdf
+    ┣ 📂utils (+)
+    ┃ ┗ 📜authenticate.js (+)
+    ┣ 📜.env
+    ┣ 📜.example.env
+    ┣ 📜.gitignore
+    ┣ 📜AW-P-EXEMPLO-1778.postman_collection.json
+    ┣ 📜package-lock.json
+    ┣ 📜package.json
+    ┣ 📜readme.md
+    ┗ 📜server.js
+    ```
+- Criar estrutura tabela utilizadores no prisma.schema
+
+    ```javascript
+    model Users{
+        id String  @id @default(uuid())
+        name String  @db.VarChar(255)
+        email String @unique
+        password String
+        isAdmin   Boolean @default(false)
+    }
+    ```
+
+- Executar no terminal e verificar se a tabela foi efetivamente criada no PgAdmin:
+
+    ```bash
+    prisma db push
+    ```
+
+- Adioncar hash ao ficheiro .env
+
+    ```
+    JWT_SECRET=sdfksADDFGMLKCZdjfl34ksdfdb323
+    ```
+
+- Criar as rotas de signin e signup: routes -> v2 -> auth.js
+
+    ```javascript
+    const authRouter = require('express').Router();
+    const controller = require('../../controllers/v2/auth');
+
+    authRouter.post('/signin', controller.signin);
+    authRouter.post('/signup', controller.signup);
+
+    module.exports = authRouter;
+    ```
+
+- Adicionar as novas rotas ao routes -> v2 -> index
+
+    ```javascript
+    const router = require('express').Router();
+    const authRouter = require('./auth');
+    const studentRouter = require('./students');
+
+    router.use('/auth', authRouter);
+    router.use('/students', studentRouter);
+
+    module.exports = router;
+    ```
+
+- Criar utils para gerar o token e validar: utils -> authenticate
+    ```javascript
+    const jwt = require('jsonwebtoken');
+
+    const secret = process.env.JWT_SECRET;
+
+    exports.generateAccessToken = information => jwt.sign(information, secret, { expiresIn: '7d' });
+
+    exports.certifyAccessToken = token => {
+        return new Promise((resolve, reject) => {
+            jwt.verify(token, secret, (err, decoded) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(decoded);
+                }
+            });
+        });
+    }
+    ```
+
+- Criar middleware para validar o utilizador: middlewares -> auth
+
+    ```javascript
+    const authenticateUtil = require('../utils/authenticate.js');
+
+    module.exports = async (req, res, next) => {
+        const accessToken = req.headers['authorization']; // req.headers['x-access-token'];
+
+        if (!accessToken) {
+            return res.status(401).send("unauthorized");
+        }
+
+        try {
+            const bearer = accessToken.split(' ');
+            const bearerToken = bearer[1];
+
+            const result = await authenticateUtil.certifyAccessToken(bearerToken);
+            req.body.loggedUserName = result.Name;
+
+            return next();
+        } catch (err) {
+            return res.status(401).send("unauthorized");
+        }
+    }
+    ```
+
+- Alterar controller: controllers -> v2 -> auth
+
+    ```javascript
+    const bcrypt = require('bcryptjs/dist/bcrypt');
+    const authenticateUtil = require('../../utils/authenticate.js');
+
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient()
+
+    exports.signin = async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            const user = await prisma.users.findUnique({
+                where: {
+                    email: email,
+                },
+            })
+
+            if (user) {
+                var passwordIsValid = bcrypt.compareSync(
+                    password,
+                    user.password
+                );
+
+                if (passwordIsValid) {
+                    const accessToken = authenticateUtil.generateAccessToken({ id: user.id, name: user.name, isAdmin : user.isAdmin });
+                    res.status(200).json({ name: user.name, token: accessToken });
+                }
+            }
+
+        } catch (error) {
+            res.status(401).json({ msg: error.message })
+        }
+    }
+
+
+    exports.signup = async (req, res) => {
+        try {
+            const { name, email, password, isAdmin } = req.body;
+
+            await prisma.users.create({
+                data: {
+                    email: email,
+                    name: name,
+                    password: bcrypt.hashSync(password, 8),
+                    isAdmin: isAdmin
+                },
+            })
+
+            return this.signin(req, res);
+        } catch (error) {
+            res.status(401).json({ msg: error.message })
+        }
+    }
+    ```
+
+- Executar <code>npm start</code>;
+
+- Testar no Postman;
+
+- Push para o GIT;
+
+### Ficha de exercícios
+### Criar toda a estrutura para:
+- Criar conta:
+    - [ ] : identificador, name, email, password, isAdmin.
+- Iniciar sessão:
+    - [ ] email e password.
+- Proteger rotas:
+    - [ ] student, school e courses.
+
+**Não esquecer de validar:**
+
+- Antes de criar uma conta verificar se:
+    - [ ] todos os campos estão devidamente preenchidos;
+    - [ ] (no caso de create) se já existe um registo com o mesmo identitificador (email);
+    - [ ] password segue padrões de segurança;
+
+- Admin Middlware
+    - [ ] Proteger rotas de criar schools e cources apenas para utilizadores com perfil administrador.
 
 ## Aula 6 - Deploy
  
