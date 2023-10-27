@@ -653,7 +653,7 @@ A terceira cadeia (ccc...c) é a assinatura que contém um hash (encriptação) 
 
 - Instalar  bcrypt (https://www.npmjs.com/package/bcrypt)
     ```bash
-    npm install bcrypt
+    npm install bcryptjs
     ```
 
 - Instalar  jsonwebtoken (https://www.npmjs.com/package/jsonwebtoken)
