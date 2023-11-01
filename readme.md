@@ -877,10 +877,49 @@ A terceira cadeia (ccc...c) é a assinatura que contém um hash (encriptação) 
     - [ ] Proteger rotas de criar schools e cources apenas para utilizadores com perfil administrador.
 
 ## Aula 6 - Deploy
- 
+
+###
+
+- Adiconar migrations
+```bash
+npx prisma migrate --name init
+```
+
+- Adicionar comandos **postinstall** e **build**  no package.json
+```json
+"scripts": {
+    "postinstall": "prisma generate && prisma migrate deploy",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "build": "node server.js"
+},
+```
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}
+```
+
 ### Vercel
 
+
+
 https://vercel.com/
+
+
 
 - Criar conta;
 
@@ -891,5 +930,7 @@ https://vercel.com/
 - Preencher as varáveis ambiente;
     - DATABASE_URL
     - JWT_SECRET
+
+
 
 - Deploy
