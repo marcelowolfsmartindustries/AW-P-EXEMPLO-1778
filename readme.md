@@ -878,3 +878,18 @@ A terceira cadeia (ccc...c) é a assinatura que contém um hash (encriptação) 
 
 ## Aula 6 - Deploy
  
+### Vercel
+
+https://vercel.com/
+
+- Criar conta;
+
+- Criar uma base de dados;
+
+- Importar projeto do GitHub;
+
+- Preencher as varáveis ambiente;
+    - DATABASE_URL
+    - JWT_SECRET
+
+- Deploy

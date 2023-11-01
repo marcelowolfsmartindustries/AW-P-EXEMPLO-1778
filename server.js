@@ -18,4 +18,8 @@ const port = process.env.SERVER_PORT || 8080;
 
 app.listen(port, () => {
     console.log('Express server listening on port', port)
-});
+})
+
+app.get('/', (req, res) => {
+    res.status(200).json('Welcome, your app is working well');
+})
