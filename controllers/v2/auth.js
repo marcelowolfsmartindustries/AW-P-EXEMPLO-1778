@@ -23,6 +23,7 @@ exports.signin = async (req, res) => {
             if (passwordIsValid) {
                 const accessToken = authenticateUtil.generateAccessToken({ id: user.id, name: user.name });
                 res.status(200).json({ name: user.name, token: accessToken });
+                return;
             }
         }
 
