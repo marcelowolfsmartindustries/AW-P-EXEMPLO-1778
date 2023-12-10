@@ -1,7 +1,11 @@
 # Conteúdo e Ficha de exercícios
 
+## Âmbito
+- Criação de uma web api para gerir escolas, cursos e alunos.
+
+
 ## TECH STACK
-- Node
+- Node JS
 - Prisma + PostgreSQL
 
 ## Aula 1 - Apresentação da UC
@@ -880,6 +884,14 @@ A terceira cadeia (ccc...c) é a assinatura que contém um hash (encriptação) 
 
 ###
 
+- 
+```javascript
+    app.get('/', (req, res) => {
+        res.status(200).json('Welcome, your app is working well');
+    })
+```
+
+
 - Adiconar migrations
 ```bash
 npx prisma migrate --name init
@@ -915,22 +927,24 @@ npx prisma migrate --name init
 
 ### Vercel
 
-
-
 https://vercel.com/
-
-
 
 - Criar conta;
 
-- Criar uma base de dados;
+- Criar uma base de dados (PostgreSQL);
 
 - Importar projeto do GitHub;
 
 - Preencher as varáveis ambiente;
-    - DATABASE_URL
-    - JWT_SECRET
-
-
-
+    ```
+    DATABASE_URL
+    JWT_SECRET
+    ```
+    
 - Deploy
+
+- Alterar o base_url Nno postman;
+
+    ![Postman base_url](image.png)
+
+- Testar no Postman;
